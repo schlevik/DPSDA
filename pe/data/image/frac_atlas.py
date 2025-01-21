@@ -1,4 +1,5 @@
 from pathlib import Path
+import random
 import cv2
 import pandas as pd
 import os
@@ -24,7 +25,7 @@ FRAC_ATLAS_LABEL_NAMES = [
 class FracAtlas(Data):
     """The Cat dataset."""
 
-    def __init__(self, root_dir="data", res=512):
+    def __init__(self, root_dir="data", res=512, limit=-1):
         """Constructor.
 
         :param root_dir: The root directory to save the dataset, defaults to "data"
@@ -32,19 +33,21 @@ class FracAtlas(Data):
         :param res: The resolution of the images, defaults to 512
         :type res: int, optional
         """
-        data_files = {"train": os.path.join(root_dir, "**")}
-        dataset = load_dataset(
-            "imagefolder",
-            data_files=data_files,
-        )
-        transform = T.Resize(res)
-        images = []
-        labels = []
-        shapes = defaultdict(int)
-        target_height = 624
-        target_width = 512
         cache_path = Path(root_dir)/'.cache'
         if not os.path.exists(cache_path):
+            data_files = {"train": os.path.join(root_dir, "**")}
+            dataset = load_dataset(
+                "imagefolder",
+                data_files=data_files,
+            )
+            if limit > 0:
+                dataset['train'] = dataset['train'].select(random.sample(list(range(len(dataset['train']))), k=limit))
+            transform = T.Resize(res)
+            images = []
+            labels = []
+            shapes = defaultdict(int)
+            target_height = 624
+            target_width = 512
             for i in trange(len(dataset['train']), desc="Processing private images.."):
                     label = dataset['train'][i]['label']
                     image = dataset['train'][i]['image']
@@ -94,6 +97,6 @@ class FracAtlas(Data):
             data_frame.to_pickle(cache_path)
         else:
             print(f"Reading from cache: {cache_path}")
-            pd.read_pickle(cache_path)
+            data_frame = pd.read_pickle(cache_path)
         metadata = {"label_info": [{"name": n} for n in FRAC_ATLAS_LABEL_NAMES]}
         super().__init__(data_frame=data_frame, metadata=metadata)

@@ -29,14 +29,13 @@ from pe.logger import LogPrint
 import pandas as pd
 import os
 import numpy as np
-
-
+import fire
 
 pd.options.mode.copy_on_write = True
 
 
-if __name__ == "__main__":
-    exp_folder = "results/image/frac_atlas"
+def main(e: int = -1):
+    exp_folder = f"results/image/frac_atlas_{e if e > 0 else 'nodp'}"
 
     setup_logging(log_file=os.path.join(exp_folder, "log-fracatlas.txt"))
 
@@ -45,6 +44,8 @@ if __name__ == "__main__":
         prompt={0: "An X-ray of a fractured bone", 1: "An X-ray of a non-fractured bone"},
         variation_degrees=list(np.arange(1.0, 0.9, -0.02)) + list(np.arange(0.88, 0.36, -0.04)),
         height=624,
+        random_api_batch_size=64,
+        variation_api_batch_size=64,
     )
     embedding = Inception(res=512, batch_size=100)
     histogram = NearestNeighbors(
@@ -72,9 +73,19 @@ if __name__ == "__main__":
         loggers=[image_file, csv_print, log_print],
     )
     n_samples = len(data.data_frame)
-    pe_runner.run(
-        num_samples_schedule=[n_samples] * 18,
-        delta=1/(n_samples*math.log(n_samples)),
-        noise_multiplier=0,
-        checkpoint_path=os.path.join(exp_folder, "checkpoint"),
-    )
+    if e == -1:
+        pe_runner.run(
+            num_samples_schedule=[n_samples] * 18,
+            delta=1/(n_samples*math.log(n_samples)),
+            noise_multiplier=0,
+            checkpoint_path=os.path.join(exp_folder, "checkpoint"),
+        )
+    else:
+        pe_runner.run(
+            num_samples_schedule=[n_samples] * 18,
+            delta=1/(n_samples*math.log(n_samples)),
+            epsilon=e,
+            checkpoint_path=os.path.join(exp_folder, "checkpoint"),
+        )
+if __name__ == '__main__':
+    fire.Fire(main)
