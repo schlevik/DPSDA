@@ -105,13 +105,13 @@ class StableDiffusion(API):
         self._variation_degrees = _to_constant_list_if_needed(variation_degrees)
 
         self._random_api_pipe = StableDiffusionPipeline.from_pretrained(
-            self._random_api_checkpoint, torch_dtype=torch.float16
+            self._random_api_checkpoint, torch_dtype=torch.bfloat16
         )
         self._random_api_pipe.safety_checker = None
         self._random_api_pipe = self._random_api_pipe.to(self._device)
 
         self._variation_api_pipe = StableDiffusionImg2ImgPipeline.from_pretrained(
-            self._variation_api_checkpoint, torch_dtype=torch.float16
+            self._variation_api_checkpoint, torch_dtype=torch.bfloat16
         )
         self._variation_api_pipe.safety_checker = None
         self._variation_api_pipe = self._variation_api_pipe.to(self._device)

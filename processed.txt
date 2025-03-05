@@ -1,3 +1,0 @@
-PYTHONPATH=. python example/image/frac_atlas.py -1
-PYTHONPATH=. python example/image/frac_atlas.py 0.5
-PYTHONPATH=. python example/image/frac_atlas.py 1

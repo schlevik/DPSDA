@@ -33,7 +33,8 @@ class FracAtlas(Data):
         :param res: The resolution of the images, defaults to 512
         :type res: int, optional
         """
-        cache_path = Path(root_dir)/'.cache'
+        cache_path = Path(root_dir)/f'.cache_{limit}'
+        print(cache_path)
         if not os.path.exists(cache_path):
             data_files = {"train": os.path.join(root_dir, "**")}
             dataset = load_dataset(

@@ -6,7 +6,7 @@ PROCESSED_FILE="processed.txt"
 LOCK_FILE="/tmp/gpu_queue.lock"
 LOG_FILE="logs/gpu_queue.log"
 MAX_RETRIES=3
-SLEEP_INTERVAL=90  # seconds between checks
+SLEEP_INTERVAL=60  # seconds between checks
 export WANDB_PROJECT='synth-data'
 mkdir -p logs/
 # Function to check for available GPU
